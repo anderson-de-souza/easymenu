@@ -1,6 +1,6 @@
 <?php
 
-require_once 'database_access.php';
+require_once __DIR__ . '/database_access.php';
     
 $pdo = null;
 

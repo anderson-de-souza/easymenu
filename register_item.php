@@ -9,7 +9,7 @@
     
     <?php
     
-        require_once '/database/item_repository.php';
+        require_once __DIR__ . '/database/item_repository.php';
         
         $item = null;
         

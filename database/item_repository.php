@@ -1,7 +1,7 @@
 <?php
     
-require_once 'connect_to_database.php';
-require_once 'item.php';
+require_once __DIR__ . '/connect_to_database.php';
+require_once __DIR__ . '/item.php';
 
 $sql = "
     CREATE TABLE IF NOT EXISTS Item (
@@ -25,7 +25,7 @@ function insertItem(Item $item) {
     global $pdo;
     
     $stmt = $pdo->prepare("
-        INSERT INTO Item (item_name, item_description, item_price, item_imageUrl)
+        INSERT INTO Item (item_name, item_description, item_price, item_image_url)
         VALUES (:name, :description, :price, :imageUrl)
     ");
     
@@ -46,7 +46,7 @@ function updateItem(Item $item) {
     
     $stmt = $pdo->prepare("
         UPDATE Item
-        SET item_name = :name, item_description = :description, item_price = :price, item_imageUrl = :imageUrl
+        SET item_name = :name, item_description = :description, item_price = :price, item_image_url = :imageUrl
         WHERE item_id = :id
     ");
     
@@ -84,7 +84,7 @@ function getAllItems(): array {
             $row['item_name'],
             $row['item_description'],
             (float) $row['item_price'],
-            $row['item_imageUrl']
+            $row['item_image_url']
         );
         $rowItem->setId((int) $row['item_id']);
         

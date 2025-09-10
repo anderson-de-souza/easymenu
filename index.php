@@ -1,5 +1,4 @@
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -44,7 +43,7 @@
     
 <?php
 
-require_once '/database/item_repository.php';
+require_once __DIR__ . '/database/item_repository.php';
 $items = getAllItems();
 
 foreach ($items as $item) {
