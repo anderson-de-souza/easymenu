@@ -41,27 +41,61 @@
 </head>
 <body>
     
-<?php
+    <main>
 
-require_once __DIR__ . '/database/item_repository.php';
-$items = getAllItems();
+        <?php
 
-foreach ($items as $item) {
-    echo "
-        <div class='item'>
+            //include __DIR__ . '/client_session_validator.php';
+            require_once __DIR__ . '/database/client_repository.php';
+
+            session_start();
+
+            if(isset($_SESSION['clientId'])) {
+                $client = getClientById($_SESSION['clientId']);
+                echo "
+                    <section>
+                        <div>
+                            <div>
+                                <h1>{$client->getName()}</h1>
+                            </div>
+                        </div>
+                    </section>
+                ";
+            }
+
+        ?>
+        
+        <section>
+
             <div>
-                <img src='{$item->getImageUrl()}' alt='{$item->getName()}'>
-            </div>
-            <div>
-                <h1>{$item->getName()}</h1>
-                <h1>R$ " . number_format($item->getPrice(), 2, ',', '.') . "</h1>
-                <p>{$item->getDescription()}</p>
-            </div>
-        </div>
-    ";
-}
 
-?>
+                <?php
+
+                    require_once __DIR__ . '/database/item_repository.php';
+                    $items = getAllItems();
+
+                    foreach ($items as $item) {
+                        echo "
+                            <div class='item'>
+                                <div>
+                                    <img src='{$item->getImageUrl()}' alt='{$item->getName()}'>
+                                </div>
+                                <div>
+                                    <h1>{$item->getName()}</h1>
+                                    <h1>R$ " . number_format($item->getPrice(), 2, ',', '.') . "</h1>
+                                    <p>{$item->getDescription()}</p>
+                                </div>
+                            </div>
+                        ";
+                    }
+
+                ?>
+
+            </div>
+
+        </section>
+
+    </main>
 
 </body>
 </html>

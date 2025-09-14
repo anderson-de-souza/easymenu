@@ -1,7 +1,7 @@
 <?php
     
 require_once __DIR__ . '/connect_to_database.php';
-require_once __DIR__ . '/item.php';
+require_once __DIR__ . '/schema/item.php';
 
 $sql = "
     CREATE TABLE IF NOT EXISTS Item (
