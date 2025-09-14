@@ -8,34 +8,34 @@ class Client {
     private string $password;
 
     private array $cart;
-    private string $signUpDatetime;
+    private ?string $signupDatetime;
 
-    public function __construct(string $name, string $email, string $password, array $cart = [], ?string $signUpDatetime = null) {
+    public function __construct(string $name, string $email, string $password, array $cart = [], ?string $signupDatetime = null) {
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
         $this->cart = $cart;
-        $this->signUpDatetime = $signUpDatetime ?? date('Y-m-d H:i:s');
+        $this->signupDatetime = $signupDatetime;
     }
 
-    public static function fromPost(): self {
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            throw new Exception("Error: The request must be a POST.");
-        }
+    public static function from($data): self {
 
-        $id = isset($_POST['clientId']) ? (int) $_POST['clientId']: 0;
-        $name = $_POST['clientName'] ?? '';
-        $email = $_POST['clientEmail'] ?? '';
-        $password = $_POST['clientPassword'] ?? '';
-        $cart = isset($_POST['clientCart']) ? json_decode($_POST['clientCart'], true): [];
-        $signUpDatetime = $_POST['clientSignUpDatetime'] ?? null;
+        $id = isset($data['clientId']) ? (int) $data['clientId']: 0;
+        $cart = isset($data['clientCart']) ? json_decode($data['clientCart'], true): [];
+        $datetime = isset($data['clientSignupDatetime']) ? $data['clientSignupDatetime']: null;
 
-        if (empty($name) || empty($email) || empty($password)) {
+        if (empty($data['clientName']) || empty($data['clientEmail']) || empty($data['clientPassword'])) {
             throw new Exception("Incomplete data (name, email, password) to create the Client.");
         }
 
-        $clientObject = new self($name, $email, $password, $cart, $signUpDatetime);
+        $clientObject = new self(
+                $data['clientName'], 
+                $data['clientEmail'], 
+                $data['clientPassword'], 
+                $cart,
+                $datetime
+            );
+
         $clientObject->setId($id);
 
         return $clientObject;
@@ -81,12 +81,12 @@ class Client {
         $this->cart = $cart;
     }
 
-    public function getSignUpDatetime(): string {
+    public function getSignUpDatetime(): ?string {
         return $this->signUpDatetime;
     }
 
-    public function setSignUpDatetime(string $signUpDatetime): void {
-        $this->signUpDatetime = $signUpDatetime;
+    public function setSignupDatetime(?string $signupDatetime): void {
+        $this->signupDatetime = $signupDatetime;
     }
     
 }

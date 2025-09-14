@@ -9,19 +9,17 @@
     <?php
     
         require_once __DIR__ . '/database/admin_register.php';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
+            $admin = Admin::from($_POST); 
         
-        $admin = null;
-        
-        try {
-            $admin = Admin::fromPost();
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
-        
-        if (isset($admin) && $admin->getId() != 0) {
-            updateAdmin($admin);
-        } else if (isset($admin)) {
-            insertAdmin($admin);
+            if (isset($admin) && $admin->getId() != 0) {
+                AdminRegister::update($admin);
+            } else if (isset($admin)) {
+                AdminRegister::insert($admin);
+            }
+
         }
         
     ?>

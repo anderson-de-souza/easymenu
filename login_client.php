@@ -14,13 +14,13 @@
 
         if (isset($_POST['clientEmail']) && isset($_POST['clientPassword'])) {
             try {
-                $client = getClientByEmailPassword($_POST['clientEmail'], isset($_POST['clientPassword']));
+                $client = ClientRepository::getClientByEmailPassword($_POST['clientEmail'], isset($_POST['clientPassword']));
                 $clientId = $client->getId();
-                logClient($clientId, 1);
+                ClientRepository::logClient($clientId, 1);
                 $_SESSION['clientId'] = $clientId;
                 header("Location: index.php");
             } catch (PDOException $e) {
-                echo "<pre>{$e->getMessage()}</pre>";
+                echo "<strong>Error: Email or password was incorrect.</strong>";
             }
         }
         

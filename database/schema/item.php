@@ -9,29 +9,22 @@ class Item {
     private string $imageUrl;
 
     public function __construct(string $name, string $description, float $price, string $imageUrl) {
-        $this->name        = $name;
+        $this->name = $name;
         $this->description = $description;
-        $this->price       = $price;
-        $this->imageUrl    = $imageUrl;
+        $this->price = $price;
+        $this->imageUrl = $imageUrl;
     }
 
-    public static function fromPost(): self {
+    public static function from($data): self {
         
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            throw new Exception("Error: The request must be a POST.");
-        }
-        
-        $id = isset($_POST['itemId']) ? (int) $_POST['itemId']: 0;
-        $name = $_POST['itemName'] ?? '';
-        $description = $_POST['itemDescription'] ?? '';
-        $price = isset($_POST['itemPrice']) ? (float) $_POST['itemPrice']: 0.0;
-        $imageUrl = $_POST['itemImageUrl'] ?? '';
+        $id = isset($data['itemId']) ? (int) $data['itemId']: 0;
+        $price = isset($data['itemPrice']) ? (float) $data['itemPrice']: 0.0;
 
-        if (empty($name) || empty($description) || empty($imageUrl)) {
+        if (empty($data['itemName']) || empty($data['itemDescription']) || empty($data['itemImageUrl'])) {
             throw new Exception("Incomplete data (name, description, imageUrl) to create the Item.");
         }
 
-        $itemObject = new self($name, $description, $price, $imageUrl);
+        $itemObject = new self($data['itemName'], $data['itemDescription'], $price, $data['itemImageUrl']);
         $itemObject->setId($id);
         
         return $itemObject;

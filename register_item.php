@@ -11,19 +11,17 @@
     
         require_once __DIR__ . '/database/item_repository.php';
         
-        $item = null;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            
+            $item = Item::from($_POST); 
         
-        try {
-            $item = Item::fromPost();    
-        } catch (Exception $e) {
-            echo $e->getMessage();
+            if (isset($item) && $item->getId() != 0) {
+                ItemRepository::update($item);
+            } else if (isset($item)) {
+                ItemRepository::insert($item);
+            }
+
         }
-        
-        if (isset($item) && $item->getId() != 0) {
-            updateItem($item);
-        } else if (isset($item)) {
-            insertItem($item);
-        } 
         
     ?>
     

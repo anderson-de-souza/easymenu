@@ -45,13 +45,12 @@
 
         <?php
 
-            //include __DIR__ . '/client_session_validator.php';
             require_once __DIR__ . '/database/client_repository.php';
 
             session_start();
 
             if(isset($_SESSION['clientId'])) {
-                $client = getClientById($_SESSION['clientId']);
+                $client = ClientRepository::getClientById($_SESSION['clientId']);
                 echo "
                     <section>
                         <div>
@@ -72,7 +71,7 @@
                 <?php
 
                     require_once __DIR__ . '/database/item_repository.php';
-                    $items = getAllItems();
+                    $items = ItemRepository::getAllItems();
 
                     foreach ($items as $item) {
                         echo "

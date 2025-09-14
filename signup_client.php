@@ -13,8 +13,8 @@
         session_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $client = Client::fromPost();
-            $clientId = insertClient($client);
+            $client = Client::from($_POST);
+            $clientId = ClientRepository::insert($client);
             $_SESSION['clientId'] = $clientId;
             header("Location: index.php");
         }

@@ -1,95 +1,119 @@
 <?php
 
-require_once __DIR__ . '/connect_to_database.php';
+require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/schema/admin.php';
 
-$sql = "
-    CREATE TABLE IF NOT EXISTS Admin (
-        admin_id INT AUTO_INCREMENT PRIMARY KEY,
-        admin_name VARCHAR(64) NOT NULL,
-        admin_email VARCHAR(128) NOT NULL UNIQUE,
-        admin_password VARCHAR(255) NOT NULL,
-        admin_created_at DATETIME NOT NULL
-    );
-";
+class AdminRegister {
 
-try {
-    $pdo->exec($sql);
-} catch (PDOException $e) {
-    echo "PDO Error: " . $e->getMessage();
-}
+    private static ?PDO $pdo = null;
 
-function insertAdmin(Admin $admin) {
+    public static function getPDO(): ?PDO {
 
-    global $pdo;
+        if (!self::$pdo) {
 
-    $stmt = $pdo->query("SELECT COUNT(*) as total FROM Admin");
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            self::$pdo = Database::getPDO();
 
-    if ($row['total'] > 0) {
-        throw new Exception("Já existe um administrador cadastrado. Não é possível criar outro.");
+            $sql = "
+                CREATE TABLE IF NOT EXISTS Admin (
+                    admin_id INT AUTO_INCREMENT PRIMARY KEY,
+                    admin_name VARCHAR(64) NOT NULL,
+                    admin_email VARCHAR(128) NOT NULL UNIQUE,
+                    admin_password VARCHAR(255) NOT NULL,
+                    admin_created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
+                );
+            ";
+
+            try {
+
+                self::$pdo->exec($sql);
+
+            } catch (PDOException $e) {
+
+                if (!is_dir(__DIR__ . '/error/pdo')) {
+                    mkdir(__DIR__ . '/error/pdo');
+                }
+                
+                $datetime = date('Y-m-d') . '_at_' . date('H-i-s');
+                $fileName = "error_pdo_$datetime.txt";
+                $file = fopen(__DIR__ . "/error/pdo/$fileName", "w");
+                
+                if ($file) {
+                    fwrite($file, $e->getMessage());
+                    fclose($file);
+                }
+
+            }
+
+        }
+
+        return self::$pdo;
+
     }
 
-    $stmt = $pdo->prepare("
-        INSERT INTO Admin (admin_name, admin_email, admin_password, admin_created_at)
-        VALUES (:name, :email, :password, :createdAt)
-    ");
+    public static function insert(Admin $admin) {
 
-    $stmt->execute([
-        ':name' => $admin->getName(),
-        ':email' => $admin->getEmail(),
-        ':password' => password_hash($admin->getPassword(), PASSWORD_BCRYPT), // melhor salvar hasheado
-        ':createdAt' => $admin->getCreatedAt()
-    ]);
+        $stmt = self::getPDO()->query("SELECT COUNT(*) as total FROM Admin");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    return $pdo->lastInsertId();
+        if ($row['total'] > 0) {
+            throw new Exception("There is already a registered admin. It is not possible to create another one.");
+        }
 
-}
+        $stmt = self::getPDO()->prepare("
+            INSERT INTO Admin (admin_name, admin_email, admin_password)
+            VALUES (:name, :email, :password)
+        ");
 
-function updateAdmin(Admin $admin) {
+        $stmt->execute([
+            ':name' => $admin->getName(),
+            ':email' => $admin->getEmail(),
+            ':password' => password_hash($admin->getPassword(), PASSWORD_BCRYPT)
+        ]);
 
-    global $pdo;
+        return self::getPDO()->lastInsertId();
 
-    $stmt = $pdo->prepare("
-        UPDATE Admin
-        SET admin_name = :name, admin_email = :email, admin_password = :password, admin_created_at = :createdAt
-        WHERE admin_id = :id
-    ");
-
-    return $stmt->execute([
-        ':name' => $admin->getName(),
-        ':email' => $admin->getEmail(),
-        ':password' => password_hash($admin->getPassword(), PASSWORD_BCRYPT),
-        ':createdAt' => $admin->getCreatedAt(),
-        ':id' => $admin->getId()
-    ]);
-
-}
-
-function getAdmin(): ?Admin {
-
-    global $pdo;
-
-    $stmt = $pdo->query("SELECT * FROM Admin LIMIT 1");
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$row) {
-        return null;
     }
 
-    $admin = new Admin(
-        $row['admin_name'],
-        $row['admin_email'],
-        $row['admin_password'],
-        $row['admin_created_at']
-    );
+    public static function update(Admin $admin) {
 
-    $admin->setId((int)$row['admin_id']);
-    return $admin;
+        $stmt = self::getPDO()->prepare("
+            UPDATE Admin
+            SET admin_name = :name, admin_email = :email, admin_password = :password
+            WHERE admin_id = :id
+        ");
 
-}
+        return $stmt->execute([
+            ':name' => $admin->getName(),
+            ':email' => $admin->getEmail(),
+            ':password' => password_hash($admin->getPassword(), PASSWORD_BCRYPT),
+            ':id' => $admin->getId()
+        ]);
 
-function deleteAdmin() {
-    global $pdo;
-    return $pdo->exec("DELETE FROM Admin");
+    }
+
+    public static function getAdmin(): ?Admin {
+
+        $stmt = self::getPDO()->query("SELECT * FROM Admin LIMIT 1");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        $admin = new Admin(
+            $row['admin_name'],
+            $row['admin_email'],
+            $row['admin_password'],
+            $row['admin_created_at']
+        );
+
+        $admin->setId((int) $row['admin_id']);
+        return $admin;
+
+    }
+
+    public static function delete() {
+        return self::getPDO()->exec("DELETE FROM Admin");
+    }
+
 }
