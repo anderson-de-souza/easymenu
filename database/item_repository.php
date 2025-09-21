@@ -19,30 +19,13 @@ class ItemRepository {
                     item_name VARCHAR(64) NOT NULL,
                     item_description VARCHAR(255),
                     item_price DECIMAL(10,2) NOT NULL,
-                    item_image_url VARCHAR(255) NOT NULL
+                    item_quantity INT DEFAULT 1 NOT NULL,
+                    item_image_name VARCHAR(255) DEFAULT \"img_0.png\" NOT NULL,
+                    item_created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
                 );
             ";
 
-            try {
-
-                self::$pdo->exec($sql);
-
-            } catch (PDOException $e) {
-
-                if (!is_dir(__DIR__ . '/error/pdo')) {
-                    mkdir(__DIR__ . '/error/pdo', 0777, true);
-                }
-                
-                $datetime = date('Y-m-d') . '_at_' . date('H-i-s');
-                $fileName = "error_pdo_$datetime.txt";
-                $file = fopen(__DIR__ . "/error/pdo/$fileName", "w");
-                
-                if ($file) {
-                    fwrite($file, $e->getMessage());
-                    fclose($file);
-                }
-
-            }
+            self::$pdo->exec($sql);
 
         }
 
@@ -53,15 +36,16 @@ class ItemRepository {
     public static function insert(Item $item) {
     
         $stmt = self::getPDO()->prepare("
-            INSERT INTO Item (item_name, item_description, item_price, item_image_url)
-            VALUES (:name, :description, :price, :imageUrl)
+            INSERT INTO Item (item_name, item_description, item_price, item_quantity, item_image_name)
+            VALUES (:name, :description, :price, :itemQuantity, :imageName)
         ");
         
         $stmt->execute([
             ':name' => $item->getName(),
             ':description' => $item->getDescription(),
             ':price' => $item->getPrice(),
-            ':imageUrl' => $item->getImageUrl(),
+            ':itemQuantity' => $item->getQuantity(),
+            ':imageName' => $item->getImageName(),
         ]);
         
         return self::$pdo->lastInsertId();
@@ -72,7 +56,7 @@ class ItemRepository {
     
         $stmt = self::getPDO()->prepare("
             UPDATE Item
-            SET item_name = :name, item_description = :description, item_price = :price, item_image_url = :imageUrl
+            SET item_name = :name, item_description = :description, item_price = :price, item_quantity = :itemQuantity, item_image_name = :imageName
             WHERE item_id = :id
         ");
         
@@ -80,14 +64,15 @@ class ItemRepository {
             ':name' => $item->getName(),
             ':description' => $item->getDescription(),
             ':price' => $item->getPrice(),
-            ':imageUrl' => $item->getImageUrl(),
+            ':itemQuantity' => $item->getQuantity(),
+            ':imageName' => $item->getImageName(),
             ':id' => $item->getId()
         ]);
         
     }
 
     public static function delete(int $id) {
-        $stmt = self::getPDO()->prepare("DELETE FROM Item WHERE id = :id");
+        $stmt = self::getPDO()->prepare("DELETE FROM Item WHERE item_id = :id");
         return $stmt->execute([':id' => $id]);
     }
 
@@ -104,7 +89,8 @@ class ItemRepository {
                 $row['item_name'],
                 $row['item_description'],
                 (float) $row['item_price'],
-                $row['item_image_url']
+                (int) $row['item_quantity'],
+                $row['item_image_name']
             );
             $rowItem->setId((int) $row['item_id']);
             

@@ -14,7 +14,7 @@
 
         if (isset($_POST['clientEmail']) && isset($_POST['clientPassword'])) {
             try {
-                $client = ClientRepository::getClientByEmailPassword($_POST['clientEmail'], isset($_POST['clientPassword']));
+                $client = ClientRepository::validate($_POST['clientEmail'], isset($_POST['clientPassword']));
                 $clientId = $client->getId();
                 ClientRepository::logClient($clientId, 1);
                 $_SESSION['clientId'] = $clientId;

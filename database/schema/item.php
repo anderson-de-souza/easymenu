@@ -6,25 +6,28 @@ class Item {
     private string $name;
     private string $description;
     private float $price;
-    private string $imageUrl;
+    private int $quantity;
+    private string $imageName;
 
-    public function __construct(string $name, string $description, float $price, string $imageUrl) {
+    public function __construct(string $name, string $description, float $price, int $quantity = 0, string $imageName = "") {
         $this->name = $name;
         $this->description = $description;
         $this->price = $price;
-        $this->imageUrl = $imageUrl;
+        $this->quantity = $quantity;
+        $this->imageName = $imageName;
     }
 
     public static function from($data): self {
         
         $id = isset($data['itemId']) ? (int) $data['itemId']: 0;
         $price = isset($data['itemPrice']) ? (float) $data['itemPrice']: 0.0;
+        $quantity = isset($data['itemQuantity']) ? (int) $data['itemQuantity']: 0;
 
-        if (empty($data['itemName']) || empty($data['itemDescription']) || empty($data['itemImageUrl'])) {
-            throw new Exception("Incomplete data (name, description, imageUrl) to create the Item.");
+        if (empty($data['itemName']) || empty($data['itemDescription'])) {
+            throw new Exception("Incomplete data (name, description) to create the Item.");
         }
 
-        $itemObject = new self($data['itemName'], $data['itemDescription'], $price, $data['itemImageUrl']);
+        $itemObject = new self($data['itemName'], $data['itemDescription'], $price, $quantity);
         $itemObject->setId($id);
         
         return $itemObject;
@@ -63,12 +66,20 @@ class Item {
         $this->price = $price;
     }
 
-    public function getImageUrl(): string {
-        return $this->imageUrl;
+    public function getQuantity(): int {
+        return $this->quantity;
     }
 
-    public function setImageUrl(string $imageUrl): void {
-        $this->imageUrl = $imageUrl;
+    public function setQuantity(int $quantity): void {
+        $this->quantity = $quantity;
+    }
+
+    public function getImageName(): string {
+        return $this->imageName;
+    }
+
+    public function setImageName(string $imageName): void {
+        $this->imageName = $imageName;
     }
     
 }

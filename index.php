@@ -77,11 +77,12 @@
                         echo "
                             <div class='item'>
                                 <div>
-                                    <img src='{$item->getImageUrl()}' alt='{$item->getName()}'>
+                                    <img src='http://localhost:8100/item/image/{$item->getImageName()}' alt='{$item->getName()}'>
                                 </div>
                                 <div>
                                     <h1>{$item->getName()}</h1>
                                     <h1>R$ " . number_format($item->getPrice(), 2, ',', '.') . "</h1>
+                                    <h1>Quantity in Stock " . $item->getQuantity() . "</h1>
                                     <p>{$item->getDescription()}</p>
                                 </div>
                             </div>

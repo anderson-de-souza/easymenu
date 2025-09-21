@@ -25,26 +25,7 @@ class ClientRepository {
                 );
             ";
 
-            try {
-
-                self::$pdo->exec($sql);
-
-            } catch (PDOException $e) {
-
-                if (!is_dir(__DIR__ . '/error/pdo')) {
-                    mkdir(__DIR__ . '/error/pdo');
-                }
-                
-                $datetime = date('Y-m-d') . '_at_' . date('H-i-s');
-                $fileName = "error_pdo_$datetime.txt";
-                $file = fopen(__DIR__ . "/error/pdo/$fileName", "w");
-                
-                if ($file) {
-                    fwrite($file, $e->getMessage());
-                    fclose($file);
-                }
-
-            }
+            self::$pdo->exec($sql);
 
         }
 
@@ -140,10 +121,13 @@ class ClientRepository {
 
     }
 
-    public static function getClientByEmailPassword(string $email, string $password): ?Client {
+    public static function validate(string $email, string $password): ?Client {
 
         $stmt = self::getPDO()->prepare("SELECT * FROM Client WHERE client_email = :email AND client_password = :clientPassword");
-        $stmt->execute([':email' => $email, ':clientPassword' => $password]);
+        $stmt->execute([
+            ':email' => $email, 
+            ':clientPassword' => password_hash($client->getPassword(), PASSWORD_BCRYPT)
+        ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 

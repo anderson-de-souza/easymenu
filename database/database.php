@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/database_access.php';
-
 class Database {
 
     private static ?PDO $pdo = null;
@@ -26,20 +24,6 @@ class Database {
                 self::$pdo->exec("USE $dbname");
 
             } catch (PDOException $e) {
-
-                if (!is_dir(__DIR__ . '/error/pdo')) {
-                    mkdir(__DIR__ . '/error/pdo');
-                }
-                
-                $datetime = date('Y-m-d') . '_at_' . date('H-i-s');
-                $fileName = "error_pdo_$datetime.txt";
-                $file = fopen(__DIR__ . "/error/pdo/$fileName", "w");
-
-                if ($file) {
-                    fwrite($file, $e->getMessage());
-                    fclose($file);
-                }
-
             }
 
         }

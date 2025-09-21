@@ -23,26 +23,7 @@ class AdminRegister {
                 );
             ";
 
-            try {
-
-                self::$pdo->exec($sql);
-
-            } catch (PDOException $e) {
-
-                if (!is_dir(__DIR__ . '/error/pdo')) {
-                    mkdir(__DIR__ . '/error/pdo');
-                }
-                
-                $datetime = date('Y-m-d') . '_at_' . date('H-i-s');
-                $fileName = "error_pdo_$datetime.txt";
-                $file = fopen(__DIR__ . "/error/pdo/$fileName", "w");
-                
-                if ($file) {
-                    fwrite($file, $e->getMessage());
-                    fclose($file);
-                }
-
-            }
+            self::$pdo->exec($sql);
 
         }
 
